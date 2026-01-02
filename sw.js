@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tutor-genio-v1';
+const CACHE_NAME = 'genio-pro-v1'; // Nome cambiato per forzare l'aggiornamento
 const urlsToCache = [
   './',
   './index.html',
@@ -6,18 +6,21 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', event => {
+  // Forza il nuovo service worker ad attivarsi subito
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
   );
 });
 
-self.addEventListener('fetch', event => {
-  // Strategia semplice: prova la rete, se fallisce (e il file è in cache), usa la cache.
-  // Per le chiamate API di Gemini, usiamo sempre la rete.
-  event.respondWith(
-    fetch(event.request).catch(() => {
-      return caches.match(event.request);
-    })
-  );
-});
+self.addEventListener('activate', event => {
+  // Cancella le vecchie cache (della versione blu) per liberare spazio
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
