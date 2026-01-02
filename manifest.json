@@ -1,19 +1,20 @@
+
 {
-  "name": "Tutor Genio" Pro,
-  "short_name": "Genio-Pro",
+  "name": "Genio Pro",
+  "short_name": "Genio Pro",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f0f9ff",
-  "theme_color": "#2563eb",
+  "background_color": "#f5f3ff",
+  "theme_color": "#4f46e5",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://placehold.co/192x192/2563eb/ffffff?text=Genio+",
+      "src": "https://placehold.co/192x192/4f46e5/ffffff?text=Pro",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://placehold.co/512x512/2563eb/ffffff?text=Genio+",
+      "src": "https://placehold.co/512x512/4f46e5/ffffff?text=Pro",
       "sizes": "512x512",
       "type": "image/png"
     }
