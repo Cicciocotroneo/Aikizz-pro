@@ -1,16 +1,19 @@
-
-const CACHE_NAME = 'genio-plus-v1'; 
+const CACHE_NAME = 'genioplus-cache-v3';
 const urlsToCache = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './icon-192.svg',
+  './icon-512.svg'
 ];
 
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+      .then(cache => {
+        return Promise.allSettled(urlsToCache.map(url => cache.add(url)));
+      })
   );
 });
 
@@ -29,9 +32,17 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  if (event.request.url.includes('generativelanguage.googleapis.com')) {
+      return; 
+  }
+  
   event.respondWith(
-    fetch(event.request).catch(() => {
-      return caches.match(event.request);
-    })
+    caches.match(event.request)
+      .then(response => {
+        if (response) {
+          return response;
+        }
+        return fetch(event.request);
+      })
   );
 });
