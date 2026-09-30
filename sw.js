@@ -1,4 +1,5 @@
-const CACHE_NAME = 'genio-pro-v1'; // Nome cambiato per forzare l'aggiornamento
+
+const CACHE_NAME = 'genio-plus-v1'; 
 const urlsToCache = [
   './',
   './index.html',
@@ -6,7 +7,6 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', event => {
-  // Forza il nuovo service worker ad attivarsi subito
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -15,7 +15,6 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
-  // Cancella le vecchie cache (della versione blu) per liberare spazio
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -24,3 +23,15 @@ self.addEventListener('activate', event => {
             return caches.delete(cacheName);
           }
         })
+      );
+    })
+  );
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    fetch(event.request).catch(() => {
+      return caches.match(event.request);
+    })
+  );
+});
