@@ -7,10 +7,10 @@
     <meta name="description" content="Tutor AI educativo per le scuole medie">
     
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/0d9488/ffffff?text=Plus">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Genio Plus">
+    <meta name="apple-mobile-web-app-title" content="Genio+">
 
     <title>Genio Plus</title>
     
@@ -23,7 +23,6 @@
         html, body { font-family: 'Nunito', sans-serif; background-color: #f0fdfa; margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; }
         .app-layout { display: flex; flex-direction: column; width: 100%; height: 100%; position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
         
-        /* Tema Plus (Teal/Smeraldo) per ragazzi più grandi */
         .chat-scroll-area { flex: 1; overflow-y: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; padding: 1rem; padding-bottom: 20px; background-color: #f0fdfa; }
         
         .bubble { padding: 16px; border-radius: 20px; max-width: 88%; line-height: 1.5; font-size: 1.05rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
@@ -36,7 +35,6 @@
         .bubble-ai p { margin-bottom: 8px; }
         .bubble-ai strong { color: #0f766e; font-weight: 800; }
         
-        /* Audio Button per AI */
         .speak-btn { position: absolute; bottom: -12px; right: -5px; background: #ccfbf1; color: #0f766e; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.1s; border: 2px solid white; font-size: 14px; }
         .speak-btn:active { transform: scale(0.9); }
         
@@ -46,14 +44,25 @@
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
         
         #install-btn { display: none; }
+        
+        /* Istruzioni iOS PWA */
+        #ios-prompt { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 15px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 100; width: 90%; max-width: 350px; text-align: center; border: 1px solid #ccfbf1; }
+        #ios-prompt::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-width: 10px 10px 0; border-style: solid; border-color: white transparent transparent transparent; display: block; width: 0; }
+
         footer { flex-shrink: 0; background: white; z-index: 50; }
     </style>
 </head>
 <body>
 
+    <!-- Popup Istruzioni iOS -->
+    <div id="ios-prompt">
+        <p class="text-sm text-teal-900 font-bold mb-2">Installa l'App!</p>
+        <p class="text-xs text-gray-600">Tocca l'icona Condividi <span class="text-lg">📤</span> in basso e scegli <br><strong>"Aggiungi alla Schermata Home"</strong></p>
+        <button onclick="document.getElementById('ios-prompt').style.display='none'" class="mt-3 text-xs text-teal-600 font-bold">Chiudi</button>
+    </div>
+
     <div class="app-layout" id="app-layout">
         
-        <!-- HEADER PLUS -->
         <header class="bg-white p-3 px-4 shadow-sm z-20 flex justify-between items-center border-b border-teal-100 flex-none pt-safe-top">
             <div class="flex items-center gap-3">
                 <div class="bg-teal-600 text-white w-10 h-10 rounded-xl flex items-center justify-center text-xl font-bold shadow-teal-200 shadow-lg">G+</div>
@@ -61,16 +70,17 @@
                     <h1 class="text-lg font-bold text-teal-900 leading-tight">Genio Plus</h1>
                     <div id="status-indicator" class="flex items-center gap-1.5 opacity-0 transition-opacity duration-500">
                         <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        <span class="text-[10px] font-bold text-teal-500 uppercase tracking-wider">Scuola Media</span>
+                        <span class="text-[10px] font-bold text-teal-500 uppercase tracking-wider">Pronto</span>
                         <span id="token-badge" class="ml-1 px-1.5 py-0.5 bg-teal-50 text-teal-600 border border-teal-100 rounded text-[9px] font-mono hidden">0 tok</span>
                     </div>
                 </div>
             </div>
             <div class="flex gap-2">
                 <button id="stop-speak-btn" onclick="stopSpeaking()" class="hidden bg-red-100 text-red-600 p-2 rounded-full hover:bg-red-200 transition-colors animate-pulse"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><rect x="6" y="6" width="12" height="12" rx="2" /></svg></button>
-                <button id="install-btn" class="hidden bg-teal-100 text-teal-700 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide hover:bg-teal-200 transition-colors">Installa</button>
-                <button onclick="clearHistory()" class="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors" title="Cancella Memoria">🧹</button>
-                <button onclick="openSettings()" class="text-gray-400 hover:text-teal-600 p-2 rounded-full hover:bg-teal-50 transition-colors">⚙️</button>
+                <!-- Bottone PWA Android -->
+                <button id="install-btn" class="bg-teal-100 text-teal-700 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide hover:bg-teal-200 transition-colors shadow-sm">Installa</button>
+                <button onclick="clearHistory()" class="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors" title="Azzera Memoria">🧹</button>
+                <button onclick="openSettings()" class="text-gray-400 hover:text-teal-600 p-2 rounded-full hover:bg-teal-50 transition-colors">⚙️️</button>
             </div>
         </header>
 
@@ -78,15 +88,15 @@
             <div id="welcome-panel" class="flex mb-4 hidden">
                 <div class="bubble bubble-ai">
                     <p class="font-bold text-lg mb-1">Ciao! 👋</p>
-                    <p>Sono Genio Plus, il tuo tutor per le Medie.</p> 
-                    <p>Posso aiutarti con algebra, grammatica, scienze o storia. Le mie risposte saranno brevi per farti risparmiare tempo (e token!). Di cosa parliamo?</p>
+                    <p>Sono Genio Plus.</p> 
+                    <p>Le mie risposte sono sintetiche, dritte al punto e organizzate in elenchi o riassunti. Iniziamo?</p>
                 </div>
             </div>
         </main>
 
         <footer class="p-3 pb-safe-bottom border-t border-teal-100 shadow-[0_-4px_10px_-5px_rgba(0,0,0,0.05)] pb-6 md:pb-3">
             <div class="max-w-4xl mx-auto flex gap-2 items-end">
-                <textarea id="user-input" rows="1" class="flex-1 bg-teal-50 text-teal-900 rounded-2xl border border-teal-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 p-3 px-4 resize-none leading-relaxed outline-none transition-all max-h-32 shadow-inner placeholder-teal-400" placeholder="Scrivi qui la tua domanda..." oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" onkeypress="handleEnter(event)"></textarea>
+                <textarea id="user-input" rows="1" class="flex-1 bg-teal-50 text-teal-900 rounded-2xl border border-teal-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 p-3 px-4 resize-none leading-relaxed outline-none transition-all max-h-32 shadow-inner placeholder-teal-400" placeholder="Domanda rapida..." oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" onkeypress="handleEnter(event)"></textarea>
                 <button onclick="sendMessage()" id="send-btn" class="bg-teal-600 hover:bg-teal-700 text-white rounded-xl w-12 h-12 flex items-center justify-center font-bold shadow-lg shadow-teal-200 transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 ml-0.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
                 </button>
@@ -94,75 +104,97 @@
         </footer>
     </div>
 
-    <!-- MODALE IMPOSTAZIONI PLUS -->
     <div id="settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden transform transition-all scale-100 flex flex-col max-h-[90vh]">
             <div class="bg-teal-600 p-4 text-white flex justify-between items-center flex-none">
-                <h2 class="text-lg font-bold">⚙️ Impostazioni Genio Plus</h2>
+                <h2 class="text-lg font-bold">⚙️ Impostazioni</h2>
                 <button onclick="closeSettings()" class="text-white/80 hover:text-white">&times;</button>
             </div>
             <div class="p-6 space-y-4 overflow-y-auto">
                 <div>
-                    <label class="block text-xs font-bold text-teal-900 uppercase mb-1">API Key (Google AI Studio)</label>
+                    <label class="block text-xs font-bold text-teal-900 uppercase mb-1">API Key</label>
                     <input type="password" id="api-key-input" class="w-full p-3 bg-teal-50 border border-teal-200 rounded-xl focus:border-teal-500 outline-none text-sm font-mono text-teal-900" placeholder="Incolla AIzaSy...">
                 </div>
                 
                 <div class="border-t border-gray-100 pt-4">
-                    <label class="block text-xs font-bold text-teal-900 uppercase mb-1">Modello (Ottimizzati per Token):</label>
+                    <label class="block text-xs font-bold text-teal-900 uppercase mb-1">Motore AI:</label>
                     <select id="model-select" class="w-full p-3 bg-white border border-teal-200 rounded-xl text-sm font-bold text-gray-700 focus:border-teal-500 outline-none cursor-pointer">
-                        <option value="gemini-2.5-flash-lite">🍃 Gemini 2.5 Flash Lite (Miglior Risparmio)</option>
-                        <option value="gemini-2.5-flash">⚡ Gemini 2.5 Flash (Equilibrato)</option>
-                        <option value="gemini-3.0-flash">🚀 Gemini 3.0 Flash (Più Intelligente ma costoso)</option>
+                        <option value="gemini-2.5-flash-lite">🍃 Gemini 2.5 Flash Lite (Più Veloce)</option>
+                        <option value="gemini-2.5-flash">⚡ Gemini 2.5 Flash</option>
+                        <option value="gemini-3.0-flash">🚀 Gemini 3.0 Flash</option>
                     </select>
-                    <p class="text-xs text-gray-500 mt-2 leading-tight">La memoria breve è stata ridotta (max 5 scambi) e le risposte sono forzate alla massima sintesi per risparmiare token.</p>
                 </div>
 
                 <div id="test-status" class="text-xs text-center text-gray-500 min-h-[20px]"></div>
 
-                <button id="save-btn" onclick="testAndSave()" class="w-full py-3 bg-teal-600 text-white font-bold rounded-xl shadow-md hover:bg-teal-700 active:scale-95 transition-all">SALVA E APPLICA</button>
+                <button id="save-btn" onclick="testAndSave()" class="w-full py-3 bg-teal-600 text-white font-bold rounded-xl shadow-md hover:bg-teal-700 active:scale-95 transition-all">SALVA</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Memoria breve: teniamo solo gli ultimi 10 messaggi (5 scambi utente-AI) per risparmiare token.
-        const MAX_HISTORY_LENGTH = 10; 
+        const MAX_HISTORY_LENGTH = 6; // Estremamente corto per risparmiare.
 
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', () => {
-                document.getElementById('app-layout').style.height = window.visualViewport.height + 'px';
-                if(document.activeElement.tagName === 'TEXTAREA') setTimeout(() => { document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight; }, 100);
-            });
-        }
-        
+        // --- PWA INSTALLATION LOGIC OTTIMIZZATA ---
         let deferredPrompt;
         const installBtn = document.getElementById('install-btn');
+        const iosPrompt = document.getElementById('ios-prompt');
+
+        // Check iOS
+        const isIos = () => {
+          const userAgent = window.navigator.userAgent.toLowerCase();
+          return /iphone|ipad|ipod/.test( userAgent );
+        }
+        
+        // Check se è già standalone (installata)
+        const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+        // Mostra popup su Safari se non è installata
+        if (isIos() && !isInStandaloneMode()) {
+            setTimeout(() => {
+                iosPrompt.style.display = 'block';
+                // Nascondi dopo 10 secondi per non dare fastidio
+                setTimeout(() => { iosPrompt.style.display = 'none'; }, 10000);
+            }, 3000); 
+        }
+
+        // Logica per Android/Chrome
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installBtn.classList.remove('hidden');
+            installBtn.style.display = 'block'; // Mostra il tasto nell'header
         });
 
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('App installata');
+                }
                 deferredPrompt = null;
-                installBtn.classList.add('hidden');
+                installBtn.style.display = 'none';
             }
         });
 
-        if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+        // Registrazione SW
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('SW registrato!', reg.scope);
+                }).catch(err => {
+                    console.log('Errore SW:', err);
+                });
+            });
+        }
 
-        // --- SYSTEM PROMPT MINIMIZZATO (Età 11 anni, Focus Risparmio Token) ---
-        // Ho rimosso istruzioni lunghe sulla magia (a 11 anni non serve).
-        // Istruzioni dirette e concise per consumare meno token in input.
-        const SYSTEM_PROMPT = `RUOLO: Tutor per ragazzi di 11 anni (Prima Media).
-REGOLE:
-1. SINTESI ESTREMA: Rispondi in max 3 frasi. Usa elenchi puntati se utile. Non dilungarti MAI.
-2. METODO: Guida al ragionamento (es. equazioni, grammatica, storia), non dare la soluzione finale dei compiti.
-3. TONO: Incoraggiante e da pre-adolescente (no toni infantili).
-4. SICUREZZA: Rifiuta temi inappropriati o violenti.`;
+        // --- SYSTEM PROMPT (Ultra-sintesi) ---
+        const SYSTEM_PROMPT = `RUOLO: Tutor didattico (Età: Prima Media).
+REGOLE ASSOLUTE:
+1. NESSUN PREAMBOLO. Non dire "Certo!", "Ecco qua!", o frasi di circostanza. Rispondi DIRETTAMENTE al punto.
+2. MASSIMA SINTESI. Usa sempre un recap visivo con elenco puntato.
+3. Se l'utente chiede una soluzione, spiegalgiela in step brevi (max 3), non dargli il risultato finale.
+4. SICUREZZA: Nessun argomento violento/sessuale.`;
         
         let chatHistory = [];
         let currentModel = "";
@@ -206,11 +238,9 @@ REGOLE:
         }
         
         function clearHistory() {
-            if(confirm("Svuotare la chat per azzerare il consumo dei token di memoria?")) {
-                chatHistory = []; 
-                localStorage.removeItem("genio_plus_history"); 
-                location.reload(); 
-            }
+            chatHistory = []; 
+            localStorage.removeItem("genio_plus_history"); 
+            location.reload(); 
         }
         
         function speakText(text) {
@@ -228,7 +258,6 @@ REGOLE:
             document.getElementById('stop-speak-btn').classList.add('hidden');
         }
 
-        // Token Counter Badge
         function updateTokenDisplay(count) {
             const badge = document.getElementById('token-badge');
             if (count > 0) {
@@ -254,7 +283,7 @@ REGOLE:
 
             if (!key) { statusBox.innerHTML = "<span class='text-red-600'>Inserisci la chiave!</span>"; return; }
 
-            statusBox.innerHTML = `<span class='text-teal-600 animate-pulse'>Test connessione a ${selectedModel}...</span>`;
+            statusBox.innerHTML = `<span class='text-teal-600 animate-pulse'>Test in corso...</span>`;
             saveBtn.disabled = true;
 
             try {
@@ -269,7 +298,7 @@ REGOLE:
                     localStorage.setItem("gemini_model_plus", selectedModel);
                     currentModel = selectedModel;
                     
-                    statusBox.innerHTML = "<span class='text-green-600 font-bold'>✅ Configurazione Salvata!</span>";
+                    statusBox.innerHTML = "<span class='text-green-600 font-bold'>✅ Salvato!</span>";
                     document.getElementById('status-indicator').classList.remove('opacity-0');
                     setTimeout(() => { closeSettings(); saveBtn.disabled = false; statusBox.innerHTML = ""; }, 1000);
                 } else {
@@ -337,7 +366,6 @@ REGOLE:
                     chatHistory.push({ role: "user", text: message });
                     chatHistory.push({ role: "model", text: aiText });
                     
-                    // TAGLIO DELLA STORIA PER RISPARMIARE TOKEN!
                     if(chatHistory.length > MAX_HISTORY_LENGTH) {
                         chatHistory = chatHistory.slice(-MAX_HISTORY_LENGTH);
                     }
@@ -349,7 +377,7 @@ REGOLE:
                     }
 
                 } else if (data.candidates && data.candidates[0].finishReason) {
-                     appendError("Risposta bloccata o non generata (sicurezza/filtri).");
+                     appendError("Risposta bloccata (sicurezza).");
                 }
             } catch (error) {
                 if(document.getElementById(loadingId)) document.getElementById(loadingId).remove();
@@ -396,3 +424,90 @@ REGOLE:
     </script>
 </body>
 </html>
+```eof
+
+Per l'installazione è fondamentale fornire anche i file giusti al browser (serve un'icona fisica che il browser deve poter leggere). Devi posizionare questi due file nella stessa cartella dell'`index.html`. 
+
+### Il file Manifest (manifest.json)
+Salvalo esattamente come `manifest.json`. Da notare che ora l'icona è `icon-192.png`.
+
+```json:Genio Plus/manifest.json
+{
+  "name": "Genio Plus",
+  "short_name": "Genio+",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f0fdfa",
+  "theme_color": "#0d9488",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+```eof
+
+### Il file Service Worker (sw.js)
+Il service worker serve per far capire al browser che l'app "funziona anche offline" (requisito obbligatorio per l'installazione). Salvalo come `sw.js`.
+
+```javascript:Genio Plus/sw.js
+const CACHE_NAME = 'genioplus-cache-v2';
+const urlsToCache = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
+];
+
+self.addEventListener('install', event => {
+  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        // Tentiamo di cachare tutto, ma non blocchiamo l'installazione se un'icona manca temporaneamente
+        return Promise.allSettled(urlsToCache.map(url => cache.add(url)));
+      })
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
+
+self.addEventListener('fetch', event => {
+  // Passiamo sempre dalla rete per le chiamate API
+  if (event.request.url.includes('generativelanguage.googleapis.com')) {
+      return; 
+  }
+  
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        if (response) {
+          return response;
+        }
+        return fetch(event.request);
+      })
+  );
+});
